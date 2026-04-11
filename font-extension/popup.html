@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StudyFont</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 320px;
+      background: #0f0e17;
+      color: #fffffe;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+    }
+
+    .header {
+      padding: 16px 18px 12px;
+      background: linear-gradient(135deg, #1a1828, #12101f);
+      border-bottom: 1px solid #2e2b45;
+    }
+
+    .logo-row { display: flex; align-items: center; gap: 10px; }
+
+    .logo-box {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, #e8c468, #c084fc);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: #0f0e17; flex-shrink: 0;
+    }
+
+    .logo-title {
+      font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #e8c468, #c084fc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .logo-sub { font-size: 10px; color: #a7a3c0; margin-top: 1px; }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 18px; background: #1a1828; border-bottom: 1px solid #2e2b45;
+    }
+
+    .toggle-label {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px; color: #a7a3c0;
+    }
+
+    .switch { position: relative; width: 40px; height: 21px; cursor: pointer; }
+    .switch input { display: none; }
+
+    .switch-track {
+      position: absolute; inset: 0;
+      background: #2e2b45; border-radius: 21px; transition: background 0.25s;
+    }
+
+    .switch-track::after {
+      content: ''; position: absolute;
+      width: 15px; height: 15px; background: #fff;
+      border-radius: 50%; top: 3px; left: 3px; transition: transform 0.25s;
+    }
+
+    input:checked ~ .switch-track { background: linear-gradient(90deg, #e8c468, #c084fc); }
+    input:checked ~ .switch-track::after { transform: translateX(19px); }
+
+    .body { padding: 14px 18px 16px; }
+    .body.off { opacity: 0.35; pointer-events: none; }
+
+    .sec {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #6b6890; margin: 14px 0 8px;
+    }
+    .sec:first-child { margin-top: 0; }
+
+    .preset-row { display: flex; gap: 7px; }
+
+    .preset {
+      flex: 1; background: #1a1828; border: 1.5px solid #2e2b45;
+      border-radius: 9px; padding: 8px 4px; text-align: center;
+      cursor: pointer; transition: all 0.18s; color: #a7a3c0;
+      font-size: 10px; font-weight: 700; font-family: inherit;
+    }
+
+    .preset:hover { color: #fffffe; transform: translateY(-1px); }
+    .preset .em { font-size: 15px; display: block; margin-bottom: 3px; }
+
+    .preset.p-study { border-color: rgba(232,196,104,0.3); }
+    .preset.p-study:hover, .preset.p-study.on {
+      background: rgba(232,196,104,0.1); border-color: #e8c468; color: #e8c468;
+    }
+    .preset.p-focus { border-color: rgba(192,132,252,0.3); }
+    .preset.p-focus:hover, .preset.p-focus.on {
+      background: rgba(192,132,252,0.1); border-color: #c084fc; color: #c084fc;
+    }
+    .preset.p-night { border-color: rgba(100,180,255,0.3); }
+    .preset.p-night:hover, .preset.p-night.on {
+      background: rgba(100,180,255,0.1); border-color: #64b4ff; color: #64b4ff;
+    }
+
+    .font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+    .fcard {
+      background: #1a1828; border: 1.5px solid #2e2b45;
+      border-radius: 9px; padding: 9px 11px;
+      cursor: pointer; transition: all 0.18s; position: relative;
+    }
+
+    .fcard:hover { border-color: #e8c468; background: #221f35; transform: translateY(-1px); }
+    .fcard.on { border-color: #e8c468; background: rgba(232,196,104,0.07); }
+
+    .fcard.on::after {
+      content: '✓'; position: absolute; top: 6px; right: 9px;
+      font-size: 10px; color: #e8c468; font-weight: 800;
+    }
+
+    .fname { font-size: 10px; color: #6b6890; font-weight: 700; margin-bottom: 4px; }
+    .fprev { font-size: 14px; color: #fffffe; white-space: nowrap; overflow: hidden; }
+    .ftag { font-size: 9px; color: #c084fc; margin-top: 2px; }
+
+    .size-wrap {
+      display: flex; align-items: center; gap: 12px;
+      background: #1a1828; border-radius: 9px; padding: 10px 13px;
+    }
+
+    .size-num {
+      font-size: 17px; font-weight: 700; color: #e8c468;
+      min-width: 36px; text-align: center;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none; flex: 1;
+      height: 4px; background: #2e2b45; border-radius: 4px; outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      background: linear-gradient(135deg, #e8c468, #c084fc);
+      border-radius: 50%; cursor: pointer; transition: transform 0.15s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+    .lh-row { display: flex; gap: 7px; }
+
+    .lhbtn {
+      flex: 1; background: #1a1828; border: 1.5px solid #2e2b45;
+      border-radius: 9px; padding: 8px 5px; text-align: center;
+      cursor: pointer; font-size: 10px; font-weight: 700;
+      color: #a7a3c0; font-family: inherit; transition: all 0.18s;
+    }
+
+    .lhbtn .lhicon { font-size: 13px; display: block; margin-bottom: 2px; }
+    .lhbtn:hover { border-color: #c084fc; color: #fffffe; }
+    .lhbtn.on { border-color: #c084fc; background: rgba(192,132,252,0.1); color: #c084fc; }
+
+    .reset-btn {
+      width: 100%; margin-top: 13px; padding: 9px;
+      background: transparent; border: 1.5px solid #2e2b45;
+      border-radius: 9px; color: #6b6890;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.18s;
+    }
+
+    .reset-btn:hover { border-color: #ff6b6b; color: #ff6b6b; background: rgba(255,107,107,0.05); }
+
+    .statusbar {
+      text-align: center; font-size: 10px; color: #2e2b45;
+      padding: 8px 18px 10px; border-top: 1px solid #1a1828; letter-spacing: 0.4px;
+    }
+
+    .statusbar span { color: #e8c468; opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-row">
+    <div class="logo-box">Aa</div>
+    <div>
+      <div class="logo-title">StudyFont</div>
+      <div class="logo-sub">Beautiful reading for engineers</div>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-row">
+  <span class="toggle-label">Extension Active</span>
+  <label class="switch">
+    <input type="checkbox" id="tog" checked>
+    <span class="switch-track"></span>
+  </label>
+</div>
+
+<div class="body" id="body">
+
+  <div class="sec">Quick Presets</div>
+  <div class="preset-row">
+    <button class="preset p-study" data-preset="study"><span class="em">📖</span>Study</button>
+    <button class="preset p-focus" data-preset="focus"><span class="em">🎯</span>Focus</button>
+    <button class="preset p-night" data-preset="night"><span class="em">🌙</span>Night</button>
+  </div>
+
+  <div class="sec">Font</div>
+  <div class="font-grid">
+
+    <div class="fcard on" data-font="Georgia, serif">
+      <div class="fname">Georgia</div>
+      <div class="fprev" style="font-family:Georgia,serif">Aa Design</div>
+      <div class="ftag">⭐ Recommended</div>
+    </div>
+
+    <div class="fcard" data-font="'Times New Roman', Times, serif">
+      <div class="fname">Times New Roman</div>
+      <div class="fprev" style="font-family:'Times New Roman',serif">Aa Design</div>
+      <div class="ftag">📚 Classic</div>
+    </div>
+
+    <div class="fcard" data-font="Palatino, 'Palatino Linotype', serif">
+      <div class="fname">Palatino</div>
+      <div class="fprev" style="font-family:Palatino,serif">Aa Design</div>
+      <div class="ftag">✨ Elegant</div>
+    </div>
+
+    <div class="fcard" data-font="Cambria, 'Hoefler Text', serif">
+      <div class="fname">Cambria</div>
+      <div class="fprev" style="font-family:Cambria,serif">Aa Design</div>
+      <div class="ftag">🖥️ Screen-ready</div>
+    </div>
+
+    <div class="fcard" data-font="'Trebuchet MS', Helvetica, sans-serif">
+      <div class="fname">Trebuchet MS</div>
+      <div class="fprev" style="font-family:'Trebuchet MS',sans-serif">Aa Design</div>
+      <div class="ftag">🎯 Modern</div>
+    </div>
+
+    <div class="fcard" data-font="Optima, Candara, sans-serif">
+      <div class="fname">Optima</div>
+      <div class="fprev" style="font-family:Optima,Candara,sans-serif">Aa Design</div>
+      <div class="ftag">😊 Friendly</div>
+    </div>
+
+  </div>
+
+  <div class="sec">Font Size</div>
+  <div class="size-wrap">
+    <span class="size-num" id="sizeNum">17px</span>
+    <input type="range" id="sizeSlider" min="12" max="26" value="17">
+  </div>
+
+  <div class="sec">Line Spacing</div>
+  <div class="lh-row">
+    <button class="lhbtn" data-lh="1.5"><span class="lhicon">▤</span>Compact</button>
+    <button class="lhbtn on" data-lh="1.8"><span class="lhicon">☰</span>Comfy</button>
+    <button class="lhbtn" data-lh="2.2"><span class="lhicon">≡</span>Relaxed</button>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">↺ Reset to Website Default</button>
+
+</div>
+
+<div class="statusbar">StudyFont v2.0 — <span>Brave Compatible</span></div>
+
+<script>
+const PRESETS = {
+  study: { font: "Georgia, serif",                        size: 17, lh: "1.8" },
+  focus: { font: "Cambria, 'Hoefler Text', serif",        size: 16, lh: "1.8" },
+  night: { font: "Palatino, 'Palatino Linotype', serif",  size: 16, lh: "2.2" }
+};
+
+let S = { enabled: true, font: "Georgia, serif", size: 17, lh: "1.8" };
+
+// ── INJECT CSS DIRECTLY INTO PAGE (no message passing needed) ────
+function injectIntoPage(settings) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs || !tabs[0]) return;
+    const tabId = tabs[0].id;
+
+    if (!settings.enabled) {
+      chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          const el = document.getElementById("studyfont-style");
+          if (el) el.remove();
+        }
+      });
+      return;
+    }
+
+    const font = settings.font;
+    const size = settings.size;
+    const lh   = settings.lh;
+
+    chrome.scripting.executeScript({
+      target: { tabId },
+      func: (font, size, lh) => {
+        let el = document.getElementById("studyfont-style");
+        if (!el) {
+          el = document.createElement("style");
+          el.id = "studyfont-style";
+          document.head.appendChild(el);
+        }
+        el.textContent = `
+          body, p, div, span, li, td, th,
+          h1, h2, h3, h4, h5, h6,
+          a, label, article, section, main {
+            font-family: ${font} !important;
+            font-size: ${size}px !important;
+            line-height: ${lh} !important;
+          }
+          code, pre, kbd, samp {
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: ${Math.max(12, size - 1)}px !important;
+          }
+        `;
+      },
+      args: [font, size, lh]
+    });
+  });
+}
+
+function saveAndApply() {
+  chrome.storage.sync.set({ sfSettings: S });
+  injectIntoPage(S);
+}
+
+function syncUI() {
+  document.getElementById("tog").checked = S.enabled;
+  document.getElementById("body").classList.toggle("off", !S.enabled);
+  document.getElementById("sizeSlider").value = S.size;
+  document.getElementById("sizeNum").textContent = S.size + "px";
+  document.querySelectorAll(".fcard").forEach(c =>
+    c.classList.toggle("on", c.dataset.font === S.font));
+  document.querySelectorAll(".lhbtn").forEach(b =>
+    b.classList.toggle("on", b.dataset.lh === S.lh));
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────
+chrome.storage.sync.get(["sfSettings"], (res) => {
+  if (res.sfSettings) S = { ...S, ...res.sfSettings };
+  syncUI();
+});
+
+// ── EVENTS ───────────────────────────────────────────────────────
+
+document.getElementById("tog").addEventListener("change", e => {
+  S.enabled = e.target.checked;
+  document.getElementById("body").classList.toggle("off", !S.enabled);
+  saveAndApply();
+});
+
+document.querySelectorAll(".fcard").forEach(c => {
+  c.addEventListener("click", () => {
+    S.font = c.dataset.font;
+    document.querySelectorAll(".preset").forEach(p => p.classList.remove("on"));
+    syncUI();
+    saveAndApply();
+  });
+});
+
+document.getElementById("sizeSlider").addEventListener("input", e => {
+  S.size = parseInt(e.target.value);
+  document.getElementById("sizeNum").textContent = S.size + "px";
+  document.querySelectorAll(".preset").forEach(p => p.classList.remove("on"));
+  saveAndApply();
+});
+
+document.querySelectorAll(".lhbtn").forEach(b => {
+  b.addEventListener("click", () => {
+    S.lh = b.dataset.lh;
+    document.querySelectorAll(".preset").forEach(p => p.classList.remove("on"));
+    syncUI();
+    saveAndApply();
+  });
+});
+
+document.querySelectorAll(".preset").forEach(b => {
+  b.addEventListener("click", () => {
+    const p = PRESETS[b.dataset.preset];
+    S.font = p.font; S.size = p.size; S.lh = p.lh;
+    document.querySelectorAll(".preset").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    syncUI();
+    saveAndApply();
+  });
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  S.enabled = false;
+  document.getElementById("tog").checked = false;
+  document.getElementById("body").classList.add("off");
+  chrome.storage.sync.remove("sfSettings");
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs || !tabs[0]) return;
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      func: () => {
+        const el = document.getElementById("studyfont-style");
+        if (el) el.remove();
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
